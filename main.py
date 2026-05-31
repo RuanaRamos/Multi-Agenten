@@ -1,10 +1,22 @@
 import streamlit as st
 import uuid
 import urllib.parse
-from graph import create_app
+import os
 
 # Seitenkonfiguration
 st.set_page_config(page_title="KI-Moderations-System", page_icon="🛡️")
+
+# Carregar as chaves de API antes de importar o graph
+if "OPENAI_API_KEY" not in os.environ:
+    if "OPENAI_API_KEY" in st.secrets:
+        os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+        if "TAVILY_API_KEY" in st.secrets:
+            os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
+    else:
+        st.error("❌ API-Keys nicht in Streamlit Secrets gefunden!")
+        st.stop()
+
+from graph import create_app
 
 st.title("🛡️ KI-Moderator mit Human-in-the-Loop")
 st.markdown("""
@@ -34,7 +46,13 @@ st.subheader("Neuen Kommentar prüfen")
 user_input = st.text_area("Kommentar hier eingeben:", placeholder="z.B.: Dieser Kurs ist schrecklich! Besuchen Sie virus.com")
 
 if st.button("Analyse starten") and user_input:
-    inputs = {"originaler_kommentar": user_input}
+    inputs = {
+        "originaler_kommentar": user_input,
+        "relevante_richtlinien": "",
+        "agenten_analyse": "",
+        "moderations_status": "",
+        "finale_begruendung": ""
+    }
     
     with st.status("Agenten arbeiten...", expanded=True) as status:
         for event in st.session_state.app.stream(inputs, config=config):

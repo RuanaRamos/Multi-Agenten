@@ -3,10 +3,10 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def analysator_agent(state):
     """Analisa o sentimento e a intenção do comentário."""
+    llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     prompt = (
         f"Analysieren Sie den Kommentar: '{state['originaler_kommentar']}'. "
         "Klassifizieren Sie strikt in eine dieser Kategorien: [positiv, neutral, problematisch]. "
@@ -30,6 +30,7 @@ def richtlinien_forscher_agent(state):
 
 def prüfer_agent(state):
     """Consolida a decisão final."""
+    llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     prompt = (
         f"Basierend auf der Analyse '{state['agenten_analyse']}' und den Richtlinien '{state['relevante_richtlinien']}', "
         f"moderieren Sie: '{state['originaler_kommentar']}'. Responda em alemão."
