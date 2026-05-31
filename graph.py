@@ -3,7 +3,7 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from agents import analysator_agent, richtlinien_forscher_agent, prüfer_agent, ausfuehrungs_agent
 
-class AgentState(TypedDict):
+class AgentState(TypedDict, total=False):
     originaler_kommentar: str
     relevante_richtlinien: str
     agenten_analyse: str

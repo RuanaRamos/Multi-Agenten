@@ -26,7 +26,13 @@ user_input = st.text_area("Kommentar zur Prüfung:", placeholder="Geben Sie hier
 if st.button("Analyse starten") and user_input:
     # WICHTIG: Thread-ID für den Speicher (Human-in-the-loop)
     config = {"configurable": {"thread_id": "standard_user"}}
-    inputs = {"originaler_kommentar": user_input}
+    inputs = {
+        "originaler_kommentar": user_input,
+        "relevante_richtlinien": "",
+        "agenten_analyse": "",
+        "moderations_status": "",
+        "finale_begruendung": ""
+    }
     
     st.session_state.current_input = user_input
     
