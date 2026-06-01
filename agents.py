@@ -6,7 +6,7 @@ load_dotenv()
 
 def analysator_agent(state):
     """Analisa o sentimento e a intenção do comentário."""
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip().strip('"').strip("'")
     if not api_key:
         raise ValueError(
             "OPENAI_API_KEY nicht gefunden! "
@@ -19,7 +19,7 @@ def analysator_agent(state):
         "Klassifizieren Sie strikt in eine dieser Kategorien: [positiv, neutral, problematisch]. "
     )
     ia_anfrage = llm.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}]
     )
     klassifizierung = ia_anfrage.choices[0].message.content.lower()
@@ -37,7 +37,7 @@ def richtlinien_forscher_agent(state):
 
 def prüfer_agent(state):
     """Consolida a decisão final."""
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip().strip('"').strip("'")
     if not api_key:
         raise ValueError(
             "OPENAI_API_KEY nicht gefunden! "
@@ -50,7 +50,7 @@ def prüfer_agent(state):
         f"moderieren Sie: '{state['originaler_kommentar']}'. Responda em alemão."
     )
     ia_anfrage = llm.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}]
     )
     return {"moderations_status": "Geprüft", "finale_begruendung": ia_anfrage.choices[0].message.content}
