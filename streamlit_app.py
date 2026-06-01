@@ -1,85 +1,163 @@
-import streamlit as st
 import os
-from graph import create_app
+import uuid
+import urllib.parse
 
-# Seite konfigurieren
+import streamlit as st
+
+# ============================================================
+# 1) Seiten-Konfiguration (muss als Erstes kommen)
+# ============================================================
 st.set_page_config(page_title="KI-Moderations-System", page_icon="🛡️")
 
-# Sicherstellen, dass die Keys vorhanden sind
-if "OPENAI_API_KEY" not in os.environ:
-    try:
-        os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-        if "TAVILY_API_KEY" in st.secrets:
-            os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
-    except KeyError:
-        st.error("❌ OPENAI_API_KEY nicht in Streamlit Secrets gefunden!")
-        st.info("""
-        Bitte fügen Sie die Secret hinzu:
-        1. Gehen Sie zu: **App Settings** (⚙️)
-        2. Klicken Sie auf **Secrets**
-        3. Fügen Sie ein: `OPENAI_API_KEY = "sk-..."`
-        4. Speichern Sie
-        """)
-        st.stop()
 
-# Initialisierung des Graphen
+# ============================================================
+# 2) API-Schlüssel laden (VOR dem Import von graph/agents)
+# ============================================================
+def _load_api_keys():
+    if os.environ.get("OPENAI_API_KEY"):
+        return True
+    try:
+        if "OPENAI_API_KEY" in st.secrets:
+            os.environ["OPENAI_API_KEY"] = str(st.secrets["OPENAI_API_KEY"]).strip()
+            if "TAVILY_API_KEY" in st.secrets:
+                os.environ["TAVILY_API_KEY"] = str(st.secrets["TAVILY_API_KEY"]).strip()
+            return True
+    except Exception:
+        pass
+    return False
+
+
+if not _load_api_keys():
+    st.error("❌ OPENAI_API_KEY nicht gefunden!")
+    st.info(
+        "Bitte konfigurieren Sie die Secrets:\n\n"
+        "1. App-Settings (⚙️) öffnen\n"
+        "2. Auf **Secrets** klicken\n"
+        "3. Einfügen: `OPENAI_API_KEY = \"sk-...\"`\n"
+        "4. Speichern"
+    )
+    st.stop()
+
+
+# ============================================================
+# 3) Graph importieren (nach dem Laden der Schlüssel)
+# ============================================================
+from graph import create_app  # noqa: E402
+
+
+# ============================================================
+# 4) Session-State initialisieren
+# ============================================================
 if "app" not in st.session_state:
     st.session_state.app = create_app()
+    st.session_state.thread_id = str(uuid.uuid4())
+    st.session_state.awaiting_review = False
 
-st.title("🛡️ Multi-Agenten Moderations-System")
-st.markdown("Analysieren Sie Kommentare mit KI-Agenten und menschlicher Freigabe.")
+config = {"configurable": {"thread_id": st.session_state.thread_id}}
 
-# Eingabe
-user_input = st.text_area("Kommentar zur Prüfung:", placeholder="Geben Sie hier einen Kommentar ein...")
 
-if st.button("Analyse starten") and user_input:
-    # WICHTIG: Thread-ID für den Speicher (Human-in-the-loop)
-    config = {"configurable": {"thread_id": "standard_user"}}
+# ============================================================
+# 5) UI
+# ============================================================
+st.title("🛡️ KI-Moderator mit Human-in-the-Loop")
+st.markdown(
+    "Dieses System nutzt eine **Multi-Agenten-Architektur** (via LangGraph), "
+    "um Kommentare intelligent zu moderieren. "
+    "**Besonderheit:** Bei kritischen Entscheidungen hält das System an und wartet auf Ihre Freigabe."
+)
+
+with st.sidebar:
+    st.header("⚙️ Konfiguration")
+    st.info(f"Thread-ID: {st.session_state.thread_id[:8]}...")
+    if st.button("🔄 Sitzung zurücksetzen"):
+        st.session_state.thread_id = str(uuid.uuid4())
+        st.session_state.awaiting_review = False
+        st.session_state.app = create_app()
+        st.rerun()
+
+st.subheader("Neuen Kommentar prüfen")
+user_input = st.text_area(
+    "Kommentar hier eingeben:",
+    placeholder="z.B.: Dieser Kurs ist schrecklich!",
+)
+
+if st.button("🚀 Analyse starten", type="primary") and user_input:
     inputs = {
         "originaler_kommentar": user_input,
         "relevante_richtlinien": "",
         "agenten_analyse": "",
         "moderations_status": "",
-        "finale_begruendung": ""
+        "finale_begruendung": "",
     }
-
-    st.session_state.current_input = user_input
 
     with st.status("Agenten arbeiten...", expanded=True) as status:
         try:
-            # Den Graphen ausführen
             for event in st.session_state.app.stream(inputs, config=config):
-                for node, values in event.items():
-                    st.write(f"✅ **{node.capitalize()}** ist fertig.")
-            status.update(label="Analyse abgeschlossen. Wartet auf Prüfung.", state="complete")
+                node_name = list(event.keys())[0]
+                st.write(f"✅ Knoten **{node_name}** abgeschlossen.")
+            status.update(label="Analyse beendet. Wartet auf Prüfung.", state="complete")
+            st.session_state.awaiting_review = True
         except Exception as e:
-            st.error(f"❌ Fehler: {str(e)}")
-            st.error(f"Details: {type(e).__name__}")
+            status.update(label="Fehler!", state="error")
+            st.error(f"❌ Fehler: {type(e).__name__}: {e}")
 
-# Human-in-the-Loop Bereich
-config = {"configurable": {"thread_id": "standard_user"}}
-snapshot = st.session_state.app.get_state(config)
 
-if snapshot.next:
+# ============================================================
+# 6) Human-in-the-Loop (nur am Breakpoint)
+# ============================================================
+try:
+    snapshot = st.session_state.app.get_state(config)
+except Exception:
+    snapshot = None
+
+if snapshot and snapshot.next and st.session_state.awaiting_review:
     st.divider()
-    st.warning("⚠️ **Menschliche Entscheidung erforderlich**")
+    st.warning("⚠️ **Menschliche Überprüfung erforderlich**")
 
-    # Werte aus dem Graphen abrufen
     daten = snapshot.values
-    st.info(f"**KI-Begründung:** {daten.get('finale_begruendung', 'Keine Begründung vorhanden.')}")
+    st.write(f"**Ursprünglicher Kommentar:** {daten.get('originaler_kommentar', '-')}")
 
-    col1, col2 = st.columns(2)
+    justificativa = st.text_area(
+        "KI-Empfehlung (Begründung):",
+        value=daten.get("finale_begruendung", ""),
+        help="Sie können diesen Text vor der Veröffentlichung bearbeiten.",
+    )
+
+    col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("✅ Genehmigen"):
             st.session_state.app.update_state(config, {"moderations_status": "Genehmigt"})
-            # Weiterlaufen lassen
             for event in st.session_state.app.stream(None, config=config):
                 st.write(event)
-            st.success("Kommentar wurde genehmigt!")
+            st.success("Erfolgreich genehmigt!")
+            st.session_state.awaiting_review = False
 
     with col2:
-        if st.button("❌ Ablehnen"):
-            st.session_state.app.update_state(config, {"moderations_status": "Abgelehnt"})
+        if st.button("📝 Bearbeiten & Senden"):
+            st.session_state.app.update_state(
+                config,
+                {"finale_begruendung": justificativa, "moderations_status": "Vom Menschen bearbeitet"},
+            )
             for event in st.session_state.app.stream(None, config=config):
                 st.write(event)
-            st.error("Kommentar wurde abgelehnt.")
+            st.info("Bearbeitete Version gesendet.")
+            st.session_state.awaiting_review = False
+
+    with col3:
+        if st.button("❌ Ablehnen"):
+            st.session_state.app.update_state(config, {"moderations_status": "Abgelehnt"})
+            st.error("Moderation abgebrochen.")
+            st.session_state.awaiting_review = False
+
+
+# ============================================================
+# 7) Workflow-Visualisierung
+# ============================================================
+st.divider()
+st.subheader("📊 System-Workflow (Graph)")
+try:
+    mermaid_graph = st.session_state.app.get_graph().draw_mermaid()
+    url = f"https://mermaid.ink/img/{urllib.parse.quote(mermaid_graph)}"
+    st.image(url, use_container_width=True)
+except Exception:
+    st.info("Graph-Visualisierung wird geladen...")
