@@ -6,7 +6,14 @@ load_dotenv()
 
 def analysator_agent(state):
     """Analisa o sentimento e a intenção do comentário."""
-    llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "OPENAI_API_KEY nicht gefunden! "
+            "Bitte konfigurieren Sie die Umgebungsvariable oder Streamlit Secrets."
+        )
+
+    llm = OpenAI(api_key=api_key)
     prompt = (
         f"Analysieren Sie den Kommentar: '{state['originaler_kommentar']}'. "
         "Klassifizieren Sie strikt in eine dieser Kategorien: [positiv, neutral, problematisch]. "
@@ -16,11 +23,11 @@ def analysator_agent(state):
         messages=[{"role": "user", "content": prompt}]
     )
     klassifizierung = ia_anfrage.choices[0].message.content.lower()
-    
+
     status = "neutral"
     if "problematisch" in klassifizierung: status = "problematisch"
     elif "positiv" in klassifizierung: status = "positiv"
-        
+
     return {"agenten_analyse": status}
 
 def richtlinien_forscher_agent(state):
@@ -30,7 +37,14 @@ def richtlinien_forscher_agent(state):
 
 def prüfer_agent(state):
     """Consolida a decisão final."""
-    llm = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "OPENAI_API_KEY nicht gefunden! "
+            "Bitte konfigurieren Sie die Umgebungsvariable oder Streamlit Secrets."
+        )
+
+    llm = OpenAI(api_key=api_key)
     prompt = (
         f"Basierend auf der Analyse '{state['agenten_analyse']}' und den Richtlinien '{state['relevante_richtlinien']}', "
         f"moderieren Sie: '{state['originaler_kommentar']}'. Responda em alemão."
