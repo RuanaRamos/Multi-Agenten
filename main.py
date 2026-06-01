@@ -8,12 +8,13 @@ st.set_page_config(page_title="KI-Moderations-System", page_icon="🛡️")
 
 # Carregar as chaves de API antes de importar o graph
 if "OPENAI_API_KEY" not in os.environ:
-    if "OPENAI_API_KEY" in st.secrets:
+    try:
         os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
         if "TAVILY_API_KEY" in st.secrets:
             os.environ["TAVILY_API_KEY"] = st.secrets["TAVILY_API_KEY"]
-    else:
-        st.error("❌ API-Keys nicht in Streamlit Secrets gefunden!")
+    except KeyError:
+        st.error("❌ OPENAI_API_KEY nicht in Streamlit Secrets gefunden!")
+        st.info("Bitte gehen Sie zu: App Settings → Secrets und fügen Sie hinzu:\nOPENAI_API_KEY = 'sk-...'")
         st.stop()
 
 from graph import create_app
