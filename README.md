@@ -1,182 +1,180 @@
 # 🛡️ KI-Moderations-System (Multi-Agenten)
 
-Um sistema inteligente de moderação de conteúdo baseado em **Multi-Agentes com IA** e **Human-in-the-Loop**, desenvolvido com LangGraph, OpenAI e Streamlit.
+Ein intelligentes Inhaltsmoderierungssystem basierend auf **Multi-Agenten mit KI** und **Human-in-the-Loop**, entwickelt mit LangGraph, OpenAI und Streamlit.
 
-## 🎯 O que é este projeto?
+## 🎯 Was ist dieses Projekt?
 
-Este é um sistema de moderação de comentários que utiliza uma arquitetura multi-agentes para análise inteligente de conteúdo. A principal característica é que **agentes de IA trabalham em conjunto** para avaliar comentários, mas as decisões críticas sempre passam por **aprovação humana** antes de serem finalizadas.
+Dies ist ein System zur Moderation von Kommentaren, das eine **Multi-Agenten-Architektur** nutzt, um Inhalte intelligenter zu analysieren. Die Hauptmerkmale sind, dass **KI-Agenten zusammenarbeiten**, um Kommentare zu bewerten, aber kritische Entscheidungen werden immer von **Menschen vor Abschluss genehmigt**.
 
-## ✨ Principais Características
+## ✨ Hauptmerkmale
 
-- 🤖 **4 Agentes Especializados**: Cada um com uma função específica
-- 🔄 **Fluxo Condicional**: Comentários críticos seguem análise aprofundada
-- 👤 **Human-in-the-Loop**: Moderadores humanos revisam e aprovam/rejeitam decisões
-- 💾 **Memória de Conversa**: Mantém histórico de análises (thread-based)
-- 📊 **Visualização do Workflow**: Diagrama do fluxo de processamento em tempo real
-- 🚀 **Escalável**: Fácil adicionar novos agentes ou modificar regras
+- 🤖 **4 spezialisierte Agenten**: Jeder mit einer spezifischen Funktion
+- 🔄 **Bedingter Fluss**: Kritische Kommentare folgen einer eingehenden Analyse
+- 👤 **Human-in-the-Loop**: Moderatoren überprüfen und genehmigen/lehnen Entscheidungen ab
+- 💾 **Gesprächsverlauf**: Behält Analyseverlauf bei (Thread-basiert)
+- 📊 **Workflow-Visualisierung**: Echtzeit-Diagramm des Verarbeitungsflusses
+- 🚀 **Skalierbar**: Einfach neue Agenten hinzufügen oder Regeln ändern
 
-## 🏗️ Arquitetura
+## 🏗️ Architektur
 
-### Fluxo de Processamento
+### Verarbeitungsfluss
 
 ```
-Usuário insere comentário
+Benutzer gibt Kommentar ein
          ↓
-    [Analysator Agent] - Classifica sentimento
+    [Analysator-Agent] - Klassifiziert Sentiment
          ↓
-    [Conditional Edge] - É problemático?
+    [Bedingter Rand] - Ist problematisch?
       /            \
-   SIM              NÃO
+   JA               NEIN
     ↓                ↓
-[Forscher Agent]  [END]
-Pesquisa regras
+[Forscher-Agent]  [ENDE]
+Sucht Regeln
     ↓
-[Prüfer Agent]
-Consolida decisão
+[Prüfer-Agent]
+Konsolidiert Entscheidung
     ↓
-[Human Review] ← ⚠️ PAUSA AQUI
-Moderador aprova/rejeita
+[Menschliche Überprüfung] ← ⚠️ PAUSE HIER
+Moderator genehmigt/lehnt ab
     ↓
-[Execution Agent]
-Finaliza ação
+[Ausführungs-Agent]
+Finalisiert Aktion
 ```
 
-### Agentes
+### Agenten
 
-| Agente | Função | Entrada | Saída |
-|--------|--------|---------|-------|
-| **Analysator** | Analisa sentimento do comentário | Texto do comentário | Classificação: positivo/neutral/problematisch |
-| **Forscher** | Busca regras de moderação relevantes | Análise anterior | Lista de regras aplicáveis |
-| **Prüfer** | Consolida análise + regras em decisão | Análise + Regras | Recomendação final |
-| **Execution** | Executa ação final | Decisão aprovada | Registra resultado |
+| Agent | Funktion | Eingabe | Ausgabe |
+|-------|----------|---------|---------|
+| **Analysator** | Analysiert Sentiment des Kommentars | Kommentartext | Klassifizierung: positiv/neutral/problematisch |
+| **Forscher** | Sucht relevante Moderationsregeln | Vorherige Analyse | Liste anwendbarer Regeln |
+| **Prüfer** | Konsolidiert Analyse + Regeln in Entscheidung | Analyse + Regeln | Endgültige Empfehlung |
+| **Ausführung** | Führt endgültige Aktion aus | Genehmigte Entscheidung | Registriert Ergebnis |
 
-## 🚀 Uso
+## 🚀 Verwendung
 
 ### Online (Streamlit Cloud)
 
-Acesse direto no navegador:
+Direkt im Browser zugreifen:
 👉 **[https://multi-agenten-01.streamlit.app/](https://multi-agenten-01.streamlit.app/)**
 
-1. Digite um comentário para moderação
-2. Clique em "🚀 Analyse starten"
-3. O sistema analisará em tempo real
-4. Você verá a recomendação da IA
-5. Aprove, edite ou rejeite o comentário
+1. Geben Sie einen Kommentar zur Moderation ein
+2. Klicken Sie auf "🚀 Analyse starten"
+3. Das System analysiert in Echtzeit
+4. Sie sehen die Empfehlung der KI
+5. Genehmigen, bearbeiten oder lehnen Sie den Kommentar ab
 
-### Instalação Local
+### Lokale Installation
 
-#### Pré-requisitos
+#### Voraussetzungen
 - Python 3.9+
-- Chave de API OpenAI (https://platform.openai.com/api-keys)
+- OpenAI API-Schlüssel (https://platform.openai.com/api-keys)
 
-#### Passos
+#### Schritte
 
-1. **Clone o repositório**
+1. **Repository klonen**
 ```bash
 git clone https://github.com/RuanaRamos/Multi-Agenten.git
 cd Multi-Agenten
 ```
 
-2. **Crie um ambiente virtual**
+2. **Virtuelle Umgebung erstellen**
 ```bash
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 ```
 
-3. **Instale dependências**
+3. **Abhängigkeiten installieren**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Configure as secrets**
+4. **Secrets konfigurieren**
 ```bash
-# Crie arquivo .streamlit/secrets.toml
+# Erstellen Sie die Datei .streamlit/secrets.toml
 mkdir -p .streamlit
 echo 'OPENAI_API_KEY = "sk-proj-..."' > .streamlit/secrets.toml
 ```
 
-5. **Execute a aplicação**
+5. **Anwendung starten**
 ```bash
 streamlit run streamlit_app.py
 ```
 
-A app abrirá em `http://localhost:8501`
+Die App öffnet sich unter `http://localhost:8501`
 
-## 📦 Estrutura do Projeto
+## 📦 Projektstruktur
 
 ```
 Multi-Agenten/
-├── agents.py              # Define os 4 agentes especializados
-├── graph.py               # Configura o workflow (LangGraph)
-├── streamlit_app.py       # Interface web (Streamlit)
-├── main.py                # Alias do streamlit_app.py
-├── app.py                 # Alias do streamlit_app.py
-├── requirements.txt       # Dependências Python
+├── agents.py              # Definiert die 4 spezialisierten Agenten
+├── graph.py               # Konfiguriert den Workflow (LangGraph)
+├── streamlit_app.py       # Web-Oberfläche (Streamlit)
+├── requirements.txt       # Python-Abhängigkeiten
 ├── .streamlit/
-│   └── config.toml        # Configuração do Streamlit
-├── .gitignore             # Protege secrets e .env
-└── README.md              # Este arquivo
+│   └── config.toml        # Streamlit-Konfiguration
+├── .gitignore             # Schützt Secrets und .env
+└── README.md              # Diese Datei
 ```
 
-### Dependências Principais
+### Hauptabhängigkeiten
 
-- **Streamlit** (1.36.0+): Interface web interativa
-- **LangGraph** (0.2.0+): Framework para workflows com grafos
-- **OpenAI** (1.50.0+): API para modelos de linguagem
-- **LangChain OpenAI** (0.2.0+): Integração LangChain-OpenAI
-- **python-dotenv** (1.0.0+): Carregamento de variáveis de ambiente
+- **Streamlit** (1.36.0+): Interaktive Web-Oberfläche
+- **LangGraph** (0.2.0+): Framework für Workflows mit Graphen
+- **OpenAI** (1.50.0+): API für Sprachmodelle
+- **LangChain OpenAI** (0.2.0+): LangChain-OpenAI-Integration
+- **python-dotenv** (1.0.0+): Laden von Umgebungsvariablen
 
-## 🔐 Configuração de Secrets
+## 🔐 Konfiguration von Secrets
 
 ### Streamlit Cloud
 
-1. Vá em: https://share.streamlit.io/apps
-2. Selecione sua app
+1. Gehen Sie zu: https://share.streamlit.io/apps
+2. Wählen Sie Ihre App
 3. **Settings** → **Secrets**
-4. Adicione:
+4. Hinzufügen:
 ```toml
-OPENAI_API_KEY = "sk-proj-sua-chave-aqui"
+OPENAI_API_KEY = "sk-proj-your-key-here"
 ```
-5. Clique **Save** (a app reiniciará automaticamente)
+5. Klicken Sie **Save** (die App wird automatisch neu gestartet)
 
-### Local (Development)
+### Lokal (Entwicklung)
 
-Crie `.streamlit/secrets.toml`:
+Erstellen Sie `.streamlit/secrets.toml`:
 ```toml
-OPENAI_API_KEY = "sk-proj-sua-chave-aqui"
-TAVILY_API_KEY = "tvly-sua-chave-aqui"  # Opcional
+OPENAI_API_KEY = "sk-proj-your-key-here"
+TAVILY_API_KEY = "tvly-your-key-here"  # Optional
 ```
 
-⚠️ **IMPORTANTE**: Este arquivo está em `.gitignore` e não será commitado.
+⚠️ **WICHTIG**: Diese Datei ist in `.gitignore` und wird nicht committed.
 
-## 🛠️ Customizações
+## 🛠️ Anpassungen
 
-### Mudar Modelo de IA
+### KI-Modell ändern
 
-Edite `agents.py`:
+Bearbeiten Sie `agents.py`:
 ```python
-# Linha 22 e 53
-model="gpt-4o-mini"  # Mude para gpt-4, gpt-3.5-turbo, etc
+# Zeile 22 und 53
+model="gpt-4o-mini"  # Ändern Sie zu gpt-4, gpt-3.5-turbo, etc.
 ```
 
-### Adicionar Novo Agente
+### Neuen Agenten hinzufügen
 
-1. Crie função em `agents.py`:
+1. Erstellen Sie eine Funktion in `agents.py`:
 ```python
-def seu_novo_agent(state):
-    """Descrição do agente"""
-    return {"nova_chave": "valor"}
+def ihr_neuer_agent(state):
+    """Beschreibung des Agenten"""
+    return {"neuer_schlüssel": "wert"}
 ```
 
-2. Adicione ao workflow em `graph.py`:
+2. Fügen Sie es zum Workflow in `graph.py` hinzu:
 ```python
-workflow.add_node("seu_agente", seu_novo_agent)
-workflow.add_edge("agente_anterior", "seu_agente")
+workflow.add_node("ihr_agent", ihr_neuer_agent)
+workflow.add_edge("vorheriger_agent", "ihr_agent")
 ```
 
-### Modificar Fluxo
+### Fluss modifizieren
 
-Edite as regras condicionais em `graph.py`:
+Bearbeiten Sie die bedingten Regeln in `graph.py`:
 ```python
 def pruefe_forschungs_bedarf(state):
     if state["agenten_analyse"] == "problematisch":
@@ -184,91 +182,91 @@ def pruefe_forschungs_bedarf(state):
     return "direkt_genehmigen"
 ```
 
-## 📊 Exemplo de Uso
+## 📊 Verwendungsbeispiel
 
-**Entrada:**
+**Eingabe:**
 ```
-"Este curso é excelente! Recomendo para todos!"
-```
-
-**Fluxo:**
-1. ✅ Analysator: Classifica como "positiv"
-2. ⏭️ Fluxo direto (sem pesquisa de regras)
-3. ✅ Prüfer: Gera recomendação de aprovação
-4. ⏸️ Espera aprovação humana
-5. ✅ Moderador aprova
-6. ✅ Execution: Registra aprovação
-
-**Saída:**
-```
-Moderations-Status: Genehmigt
-KI-Begründung: "Comentário positivo e construtivo. Sem violações de regras."
+"Dieser Kurs ist ausgezeichnet! Ich empfehle ihn jedem weiter!"
 ```
 
-## 🔄 Workflow Visual
+**Fluss:**
+1. ✅ Analysator: Klassifiziert als "positiv"
+2. ⏭️ Direkter Fluss (keine Regelsuche)
+3. ✅ Prüfer: Generiert Genehmigungsempfehlung
+4. ⏸️ Wartet auf Genehmigung durch Menschen
+5. ✅ Moderator genehmigt
+6. ✅ Ausführung: Registriert Genehmigung
 
-A app exibe um diagrama Mermaid do workflow em tempo real:
+**Ausgabe:**
+```
+Moderationsstatus: Genehmigt
+KI-Begründung: "Positiver und konstruktiver Kommentar. Keine Regelverstoße."
+```
+
+## 🔄 Workflow-Visualisierung
+
+Die App zeigt ein Mermaid-Diagramm des Workflows in Echtzeit:
 
 ```mermaid
 graph TD
     A[Analysator] --> B{Problematisch?}
-    B -->|Sim| C[Forscher]
-    B -->|Não| E[END]
+    B -->|Ja| C[Forscher]
+    B -->|Nein| E[ENDE]
     C --> D[Prüfer]
-    D --> F[Human Review]
-    F -->|Aprova| G[Execution]
-    F -->|Rejeita| H[END]
-    G --> I[END]
+    D --> F[Menschliche Überprüfung]
+    F -->|Genehmigt| G[Ausführung]
+    F -->|Abgelehnt| H[ENDE]
+    G --> I[ENDE]
 ```
 
-## 🚨 Resolução de Problemas
+## 🚨 Fehlerbehebung
 
 ### ❌ AuthenticationError
-**Causa:** Chave OpenAI inválida ou expirada
-**Solução:**
-1. Acesse https://platform.openai.com/api-keys
-2. Gere uma nova chave
-3. Atualize em Streamlit Secrets
+**Ursache:** Ungültiger oder abgelaufener OpenAI-Schlüssel  
+**Lösung:**
+1. Besuchen Sie https://platform.openai.com/api-keys
+2. Generieren Sie einen neuen Schlüssel
+3. Aktualisieren Sie in Streamlit Secrets
 
-### ❌ OPENAI_API_KEY não encontrada
-**Causa:** Secrets não configuradas
-**Solução:**
+### ❌ OPENAI_API_KEY nicht gefunden
+**Ursache:** Secrets nicht konfiguriert  
+**Lösung:**
 - Streamlit Cloud: Settings → Secrets
-- Local: Crie `.streamlit/secrets.toml`
+- Lokal: Erstellen Sie `.streamlit/secrets.toml`
 
 ### ❌ ModuleNotFoundError
-**Causa:** Dependências não instaladas
-**Solução:**
+**Ursache:** Abhängigkeiten nicht installiert  
+**Lösung:**
 ```bash
 pip install -r requirements.txt
 ```
 
-## 📈 Métricas e Monitoramento
+## 📈 Metriken und Überwachung
 
-Atualmente, a app registra:
-- Comentários analisados
-- Classificações de sentimento
-- Decisões aprovadas/rejeitadas
-- Tempo de processamento (em logs)
+Derzeit protokolliert die App:
+- Analysierte Kommentare
+- Sentiment-Klassifizierungen
+- Genehmigte/abgelehnte Entscheidungen
+- Verarbeitungszeit (in Logs)
 
-Para produção, considere adicionar:
-- Banco de dados para histórico
-- Dashboard de métricas
-- Alertas para padrões suspeitos
+Für die Produktion empfehlen wir:
+- Datenbank für Verlauf
+- Metriken-Dashboard
+- Benachrichtigungen für verdächtige Muster
 
-## 🤝 Contribuindo
+## 🤝 Beitragen
 
-Contribuições são bem-vindas! Para contribuir:
+Beiträge sind willkommen! Um beizutragen:
 
-1. Faça um fork do repositório
-2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -m 'Add nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
+1. Forken Sie das Repository
+2. Erstellen Sie einen Branch (`git checkout -b feature/neue-funktion`)
+3. Committen Sie Ihre Änderungen (`git commit -m 'Neue Funktion hinzufügen'`)
+4. Pushen Sie zum Branch (`git push origin feature/neue-funktion`)
+5. Öffnen Sie einen Pull Request
 
-## 📝 Licença
+## 📝 Lizenz
 
-Este projeto está licenciado sob a MIT License - veja o arquivo LICENSE para detalhes.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die LICENSE-Datei für Details.
 
 ## 👤 Autor
 
@@ -276,19 +274,19 @@ Este projeto está licenciado sob a MIT License - veja o arquivo LICENSE para de
 - GitHub: [@RuanaRamos](https://github.com/RuanaRamos)
 - Email: ruanarbarbosa2@icloud.com
 
-## 🔗 Links Úteis
+## 🔗 Nützliche Links
 
-- 🌐 **App em Produção**: [https://multi-agenten-01.streamlit.app/](https://multi-agenten-01.streamlit.app/)
-- 📚 **LangGraph Docs**: https://langchain-ai.github.io/langgraph/
+- 🌐 **App in Produktion**: [https://multi-agenten-01.streamlit.app/](https://multi-agenten-01.streamlit.app/)
+- 📚 **LangGraph Dokumentation**: https://langchain-ai.github.io/langgraph/
 - 🤖 **OpenAI API**: https://platform.openai.com/docs
-- 🎯 **Streamlit Docs**: https://docs.streamlit.io
+- 🎯 **Streamlit Dokumentation**: https://docs.streamlit.io
 
-## 🙏 Agradecimentos
+## 🙏 Danksagungen
 
-- OpenAI pelo GPT-4o-mini
-- LangChain/LangGraph pela orquestração de agentes
-- Streamlit pela interface web elegante
+- OpenAI für GPT-4o-mini
+- LangChain/LangGraph für die Agenten-Orchestrierung
+- Streamlit für die elegante Web-Oberfläche
 
 ---
 
-**⭐ Se este projeto foi útil, deixe uma estrela!**
+**⭐ Wenn dieses Projekt hilfreich war, geben Sie bitte einen Stern!**
